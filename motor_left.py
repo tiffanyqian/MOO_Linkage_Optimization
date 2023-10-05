@@ -7,7 +7,7 @@ from pymoo.optimize import minimize
 from pymoo.core.problem import Problem
 import matplotlib.pyplot as plt
 
-## *** THIS PYTHON SCRIPT ASSUMES MOTOR ON THE RIGHT SIDE *** ##
+## *** THIS PYTHON SCRIPT ASSUMES MOTOR ON THE LEFT SIDE *** ##
 
 ## PROBLEM DEFINITION IS HERE, CHANGE HERE TO OPTIMIZE A DIFF PROBLEM ##
 # Define (0,0) as shifted to the midpoint of the rightmost button set. See class notes for where the convention
@@ -48,7 +48,6 @@ class Linkage(Problem):
         # -> n_ieq_constr is the number of constraints for the solutions, i.e. the ground links can't go outside
         # the board. The alg ensure that every n_ieq_constr <= 0.
         # NOTE: if you change n_obj or n_ieq_constr, please change it above (search obj, ieq)
-
 
     def _evaluate(self, x, out, *args, **kwargs):
         global log
@@ -137,7 +136,7 @@ class Linkage(Problem):
 
             # *** FITNESS ***
             # (These are the objectives)
-            f[i, :] = [trans_A_1, trans_A_2, trans_A_3, abs(mag_W_A), abs(mag_Z_A),
+            f[i, :] = [trans_B_1, trans_B_2, trans_B_3, abs(mag_W_A), abs(mag_Z_A),
                        abs(mag_W_B), abs(mag_Z_B)]
             # f[i, :] = [abs_dev_A, abs(mag_W_A), abs(mag_Z_A), abs(mag_W_B), abs(mag_Z_B)]
 
@@ -209,14 +208,14 @@ def run(pop, gen):
     else:
         print("Fig 2. index in log file is:", best_ind_ang)
         plt.figure(1)
-        plt.title("Minimizing Abs Dev Transmission Angle, side A (left)")
+        plt.title("Minimizing Abs Dev Transmission Angle, side B (right)")
         graph_em(val_ang)
 
     ## *** SHORTEST LINK LENGTHS *** ###
     # This tries to find the index of the shortest follower links (in this case: side A, red and yellow),
     # in the results and then pull the data
     df_res = pd.DataFrame(np.array(res.F))
-    best_ind_len = df_res.iloc[:, 3]
+    best_ind_len = df_res.iloc[:, 5]
     best_ind_len = best_ind_len.idxmin()
     val_len = res_log[res_log["mag_W_A"] == res.F[best_ind_len][3]]
     val_len = val_len[val_len["mag_Z_A"] == res.F[best_ind_len][4]]
@@ -229,7 +228,7 @@ def run(pop, gen):
     else:
         print("Fig 2. index in log file is:", best_ind_len)
         plt.figure(2)
-        plt.title("Minimizing Follower Link Length, side A (left)")
+        plt.title("Minimizing Follower Link Length, side B (right)")
         graph_em(val_len)
 
     return res
