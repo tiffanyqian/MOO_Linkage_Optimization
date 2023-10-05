@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from main import graph_em
+from motor_right import graph_em
 
 # MAKE SURE YOU'RE IMPORTING THE GRAPH FUNCTION FROM THE RIGHT PYTHON FILE THAT YOU WERE OPTIMIZING FROM
 
