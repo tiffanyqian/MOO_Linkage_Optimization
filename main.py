@@ -96,7 +96,7 @@ class Linkage(Problem):
                       (cmath.exp(complex(0, Beta_3_A)) - 1) * (cmath.exp(complex(0, Alpha_2)) - 1)
             im_W_A = top_W_A / bot_W_A
             W_A = [im_W_A.real, im_W_A.imag]
-            mag_W_A = math.sqrt(W_A[0] ** 2 + W_A[1] ** 2)
+            mag_W_A = np.linalg.norm(W_A)
             print(W_A)
             top_Z_A = (cmath.exp(complex(0, Beta_2_A)) - 1) * (Delta_3_A * cmath.exp(complex(0, Alpha_3))) - \
                       (cmath.exp(complex(0, Beta_3_A)) - 1) * (Delta_2_A * cmath.exp(complex(0, Alpha_2)))
@@ -104,7 +104,7 @@ class Linkage(Problem):
                       (cmath.exp(complex(0, Beta_3_A)) - 1) * (cmath.exp(complex(0, Alpha_2)) - 1)
             im_Z_A = top_Z_A / bot_Z_A
             Z_A = [im_Z_A.real, im_Z_A.imag]
-            mag_Z_A = math.sqrt(Z_A[0] ** 2 + Z_A[1] ** 2)
+            mag_Z_A = np.linalg.norm(Z_A)
             print(Z_A)
             ## SIDE B ##
             top_W_B = (Delta_2_B * cmath.exp(complex(0, Alpha_2))) * (cmath.exp(complex(0, Alpha_3)) - 1) - \
@@ -113,7 +113,7 @@ class Linkage(Problem):
                       (cmath.exp(complex(0, Beta_3_B)) - 1) * (cmath.exp(complex(0, Alpha_2)) - 1)
             im_W_B = top_W_B / bot_W_B
             W_B = [im_W_B.real, im_W_B.imag]
-            mag_W_B = math.sqrt(W_B[0] ** 2 + W_B[1] ** 2)
+            mag_W_B = np.linalg.norm(W_B)
             print(W_B)
             top_Z_B = (cmath.exp(complex(0, Beta_2_B)) - 1) * (Delta_3_B * cmath.exp(complex(0, Alpha_3))) - \
                       (cmath.exp(complex(0, Beta_3_B)) - 1) * (Delta_2_B * cmath.exp(complex(0, Alpha_2)))
@@ -121,13 +121,13 @@ class Linkage(Problem):
                       (cmath.exp(complex(0, Beta_3_B)) - 1) * (cmath.exp(complex(0, Alpha_2)) - 1)
             im_Z_B = top_Z_B / bot_Z_B
             Z_B = [im_Z_B.real, im_Z_B.imag]
-            mag_Z_B = math.sqrt(Z_B[0] ** 2 + Z_B[1] ** 2)
+            mag_Z_B = np.linalg.norm(Z_B)
             print(Z_B)
 
             # *** TRANSMISSION ANGLES ***
             # Use the cos(theta) = (a dot b) / (|a||b|) eq to calculate first transmission angle
-            trans_A_1 = np.arccos((W_A[0] * Z_A[0] + W_A[1] * Z_A[1]) / (mag_W_A * mag_Z_A))
-            trans_B_1 = np.arccos((W_B[0] * Z_B[0] + W_B[1] * Z_B[1]) / (mag_W_B * mag_Z_B))
+            trans_A_1 = np.arccos(np.dot(W_A, Z_A) / (mag_W_A * mag_Z_A))
+            trans_B_1 = np.arccos(np.dot(W_B, Z_B) / (mag_W_B * mag_Z_B))
             # Every transmission angle past first position adds alpha and subtracts beta according to
             # my lil mental math. pls tell me if I'm wrong
             trans_A_2 = trans_A_1 + Alpha_2 - Beta_2_A
