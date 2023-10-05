@@ -7,16 +7,45 @@ from pymoo.optimize import minimize
 from pymoo.core.problem import Problem
 import matplotlib.pyplot as plt
 
+# Defining locations of buttons in x-y plane
+blue_button_left = (4.50, 13.50)
+blue_button_right = (6.43, 12.98)
+red_button_left = (10.00, 15.00)
+red_button_right = (11.93, 15.52)
+yellow_button_left = (16.09, 12.41)
+yellow_button_right = (17.50, 11.00)
+bonus_button = (15.00, 18.00)
+
+'''
+Distances are calculated from side X of the yellow button to side X of the blue/red button
+for example, delta 2 a distance is calculated with distance from left yellow button to left red button
+The order of button colors from left to right is blue, red, bonus (green), yellow
+'''
+delta_2a_distance = math.dist(yellow_button_left, red_button_left)
+delta_2b_distance = math.dist(yellow_button_right, red_button_right)
+delta_3a_distance = math.dist(yellow_button_left, blue_button_left)
+delta_3b_distance = math.dist(yellow_button_right, blue_button_right)
+
 ## PROBLEM DEFINITION IS HERE, CHANGE HERE TO OPTIMIZE A DIFF PROBLEM ##
 # Define (0,0) as shifted to the midpoint of the rightmost button set. See class notes for where the convention
 # comes from- pls do not ask me where the angles for the deltas came from they are sooo trial and error
-Delta_2_A = 6.62 * cmath.exp(complex(0, 96.88 * math.pi / 180))
-Delta_2_B = 7.17 * cmath.exp(complex(0, 80.86 * math.pi / 180))
-Delta_3_A = 11.63 * cmath.exp(complex(0, 142.4 * math.pi / 180))
-Delta_3_B = 11.25 * cmath.exp(complex(0, 137.14 * math.pi / 180))
+Delta_2_A = delta_2a_distance * cmath.exp(complex(0, 96.88 * math.pi / 180))
+Delta_2_B = delta_2b_distance * cmath.exp(complex(0, 80.86 * math.pi / 180))
+Delta_3_A = delta_3a_distance * cmath.exp(complex(0, 142.4 * math.pi / 180))
+Delta_3_B = delta_3b_distance * cmath.exp(complex(0, 137.14 * math.pi / 180))
+
 # Theta_1 = 0 deg, Theta_2 = 60.08 deg, Theta_3 = 32.72 deg, and then Alpha_j is diff between Theta_j and Theta_1
-Alpha_2 = 60.08 * math.pi / 180
-Alpha_3 = 32.72 * math.pi / 180
+
+# Alpha_2/3 calculates difference in slope between yellow buttons and red/blue buttons, in radians automatically
+Alpha_2 = np.abs(
+    np.arctan((yellow_button_left[1] - yellow_button_right[1])/(yellow_button_left[0] - yellow_button_right[0])) -
+    np.arctan((red_button_left[1] - red_button_right[1]) / (red_button_left[0] - red_button_right[0]))
+)
+
+Alpha_3 = np.abs(
+    np.arctan((yellow_button_left[1] - yellow_button_right[1] )/ (yellow_button_left[0] - yellow_button_right[0])) -
+    np.arctan((blue_button_left[1] - blue_button_right[1]) / (blue_button_left[0] - blue_button_right[0]))
+)
 
 # log file definition, don't touch!
 # TIFF TODO: reformat these log files this is kinda dooky
@@ -170,9 +199,9 @@ def run(pop, gen):
 
     # Log only best final results
     res_log = pd.DataFrame(columns=["A Transmission Angle", "B Transmission Angle", "Beta_2_A", "Beta_3_A",
-                            "Beta_2_B", "Beta_3_B", "W_A_x", "W_A_y", "Z_A_x", "Z_A_y", "W_B_x",
-                            "W_B_y", "Z_B_x", "Z_B_y", "mag_W_A", "mag_Z_A", "mag_W_B", "mag_Z_B",
-                            "A Trans pos 2", "B Trans pos 2", "A Trans pos 3", "B Trans pos 3"])
+                                    "Beta_2_B", "Beta_3_B", "W_A_x", "W_A_y", "Z_A_x", "Z_A_y", "W_B_x",
+                                    "W_B_y", "Z_B_x", "Z_B_y", "mag_W_A", "mag_Z_A", "mag_W_B", "mag_Z_B",
+                                    "A Trans pos 2", "B Trans pos 2", "A Trans pos 3", "B Trans pos 3"])
     for i in range(0, len(res.pop.get(F""))):
         temp = log[log["mag_W_A"] == res.F[i][3]]
         temp = temp[temp["mag_Z_A"] == res.F[i][4]]
@@ -227,8 +256,8 @@ def graph_em(val):
 
     # This unpacks the values that are needed for calculating positions
     Beta_2_A, Beta_3_A, Beta_2_B, Beta_3_B, \
-        W_A_x, W_A_y, Z_A_x, Z_A_y, W_B_x, W_B_y, Z_B_x, Z_B_y, \
-        mag_W_A, mag_Z_A, mag_W_B, mag_Z_B = val.iloc[0, 2:18]
+    W_A_x, W_A_y, Z_A_x, Z_A_y, W_B_x, W_B_y, Z_B_x, Z_B_y, \
+    mag_W_A, mag_Z_A, mag_W_B, mag_Z_B = val.iloc[0, 2:18]
 
     # Print transmission angles in readable form (degrees)
     trans_A_1 = val.iloc[0, 20] * 180 / math.pi
