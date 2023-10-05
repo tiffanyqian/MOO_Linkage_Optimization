@@ -150,12 +150,12 @@ class Linkage(Problem):
             B0 = [B1_1[0] - W_B[0], B1_1[1] - W_B[1]]
             # Trying to save space by not redefining extra variables, so ineq. constraints are as follows:
             g[i, :] = [-10 - A0[1], -10 - B0[1], A0[1] - 2, B0[1] - 2, -16.8 - A0[0], -16.8 - B0[0],
-                       A0[0] - 12.3, B0[0] - 12.3, mag_W_A - 10, mag_Z_A - 10, mag_W_B - 10, mag_Z_B - 10,
+                       A0[0] - 7.21, B0[0] - 7.21, mag_W_A - 10, mag_Z_A - 10, mag_W_B - 10, mag_Z_B - 10,
                        A0[0] - B0[0]]
             # -10 - A0[1], -10 - B0[1] -> y-coord of ground links A0 and B0 must be above y = -10
             # A0[1] - 2, B0[1] - 2 -> y-coord of ground links A0 and B0 must be below y = 2
             # -16.8 - A0[0], -16.8 - B0[0] -> x-coord of ground links A0 and B0 must be to the right of x = -16.8
-            # A0[0] - 12.3, B0[0] - 12.3 ->  x-coord of ground links A0 and B0 must be to the left of x = 12.3
+            # A0[0] - 7.21, B0[0] - 7.21 ->  x-coord of ground links A0 and B0 must be to the left of x = 7.21
             # mag_W_A - 10, mag_Z_A - 10, mag_W_B - 10, mag_Z_B - 10 -> link lengths must be less than 10 inches
             # A0[0] - B0[0] -> x-coord of ground link A0 must be to the left of x-coord of ground link B0
 
