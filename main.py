@@ -7,6 +7,8 @@ from pymoo.optimize import minimize
 from pymoo.core.problem import Problem
 import matplotlib.pyplot as plt
 
+## *** THIS PYTHON SCRIPT ASSUMES MOTOR ON THE RIGHT SIDE *** ##
+
 ## PROBLEM DEFINITION IS HERE, CHANGE HERE TO OPTIMIZE A DIFF PROBLEM ##
 # Define (0,0) as shifted to the midpoint of the rightmost button set. See class notes for where the convention
 # comes from- pls do not ask me where the angles for the deltas came from they are sooo trial and error
@@ -19,11 +21,10 @@ Alpha_2 = 60.08 * math.pi / 180
 Alpha_3 = 32.72 * math.pi / 180
 
 # log file definition, don't touch!
-# TIFF TODO: reformat these log files this is kinda dooky
-log = pd.DataFrame(columns=["A Transmission Angle", "B Transmission Angle", "Beta_2_A", "Beta_3_A",
+log = pd.DataFrame(columns=["A_trans_ang_1", "B_trans_ang_1", "Beta_2_A", "Beta_3_A",
                             "Beta_2_B", "Beta_3_B", "W_A_x", "W_A_y", "Z_A_x", "Z_A_y", "W_B_x",
                             "W_B_y", "Z_B_x", "Z_B_y", "mag_W_A", "mag_Z_A", "mag_W_B", "mag_Z_B",
-                            "A Trans pos 2", "B Trans pos 2", "A Trans pos 3", "B Trans pos 3"])
+                            "A_trans_ang_2", "B_trans_ang_2", "A_trans_ang_3", "B_trans_ang_3"])
 
 # some hyperparameters for the number of objectives and number of inequality constraints for pymoo, please
 # change here only!!!
@@ -68,7 +69,7 @@ class Linkage(Problem):
             im_W_A = top_W_A / bot_W_A
             W_A = [im_W_A.real, im_W_A.imag]
             mag_W_A = math.sqrt(W_A[0] ** 2 + W_A[1] ** 2)
-            print(W_A)
+            # print(W_A)
             top_Z_A = (cmath.exp(complex(0, Beta_2_A)) - 1) * (Delta_3_A * cmath.exp(complex(0, Alpha_3))) - \
                       (cmath.exp(complex(0, Beta_3_A)) - 1) * (Delta_2_A * cmath.exp(complex(0, Alpha_2)))
             bot_Z_A = (cmath.exp(complex(0, Beta_2_A)) - 1) * (cmath.exp(complex(0, Alpha_3)) - 1) - \
@@ -76,7 +77,7 @@ class Linkage(Problem):
             im_Z_A = top_Z_A / bot_Z_A
             Z_A = [im_Z_A.real, im_Z_A.imag]
             mag_Z_A = math.sqrt(Z_A[0] ** 2 + Z_A[1] ** 2)
-            print(Z_A)
+            # print(Z_A)
             ## SIDE B ##
             top_W_B = (Delta_2_B * cmath.exp(complex(0, Alpha_2))) * (cmath.exp(complex(0, Alpha_3)) - 1) - \
                       (Delta_3_B * cmath.exp(complex(0, Alpha_3))) * (cmath.exp(complex(0, Alpha_2)) - 1)
@@ -85,7 +86,7 @@ class Linkage(Problem):
             im_W_B = top_W_B / bot_W_B
             W_B = [im_W_B.real, im_W_B.imag]
             mag_W_B = math.sqrt(W_B[0] ** 2 + W_B[1] ** 2)
-            print(W_B)
+            # print(W_B)
             top_Z_B = (cmath.exp(complex(0, Beta_2_B)) - 1) * (Delta_3_B * cmath.exp(complex(0, Alpha_3))) - \
                       (cmath.exp(complex(0, Beta_3_B)) - 1) * (Delta_2_B * cmath.exp(complex(0, Alpha_2)))
             bot_Z_B = (cmath.exp(complex(0, Beta_2_B)) - 1) * (cmath.exp(complex(0, Alpha_3)) - 1) - \
@@ -93,7 +94,7 @@ class Linkage(Problem):
             im_Z_B = top_Z_B / bot_Z_B
             Z_B = [im_Z_B.real, im_Z_B.imag]
             mag_Z_B = math.sqrt(Z_B[0] ** 2 + Z_B[1] ** 2)
-            print(Z_B)
+            # print(Z_B)
 
             # *** TRANSMISSION ANGLES ***
             # Use the cos(theta) = (a dot b) / (|a||b|) eq to calculate first transmission angle
@@ -105,29 +106,32 @@ class Linkage(Problem):
             trans_B_2 = trans_B_1 + Alpha_2 - Beta_2_B
             trans_A_3 = trans_A_1 + Alpha_3 - Beta_3_A
             trans_B_3 = trans_B_1 + Alpha_3 - Beta_3_B
-            # This gets the deviation from 90 degrees
-            trans_A_1 = abs(trans_A_1 - math.pi / 2)
-            trans_B_1 = abs(trans_B_1 - math.pi / 2)
-            trans_A_2 = abs(trans_A_2 - math.pi / 2)
-            trans_B_2 = abs(trans_B_2 - math.pi / 2)
-            trans_A_3 = abs(trans_A_3 - math.pi / 2)
-            trans_B_3 = abs(trans_B_3 - math.pi / 2)
+
+            # Process transmission angle math
+            t_angs = [trans_A_1, trans_B_1, trans_A_2, trans_B_2, trans_A_3, trans_B_3]
+            for ang in range(len(t_angs)):
+                # This makes sure all angles are acute
+                t_angs[ang] = min(abs(t_angs[ang]), math.pi - abs(t_angs[ang]))
+                # This gets the deviation from 90 degrees
+                t_angs[ang] = math.pi / 2 - t_angs[ang]
+            trans_A_1, trans_B_1, trans_A_2, trans_B_2, trans_A_3, trans_B_3 = t_angs
+
             # This calculates the absolute transmission angle deviation
             abs_dev_A = max([trans_A_1, trans_A_2, trans_A_3])
             abs_dev_B = max([trans_B_1, trans_B_2, trans_B_3])
-            print("ABS DEV A", abs_dev_A)
-            print("ABS DEV B", abs_dev_B)
+            # print("ABS DEV A", abs_dev_A)
+            # print("ABS DEV B", abs_dev_B)
 
             # Log everything so you can access it later >:)
-            temp_df = pd.DataFrame({"A Transmission Angle": [trans_A_1], "B Transmission Angle": [trans_B_1],
+            temp_df = pd.DataFrame({"A_trans_ang_1": [trans_A_1], "B_trans_ang_1": [trans_B_1],
                                     "Beta_2_A": [Beta_2_A], "Beta_3_A": [Beta_3_A], "Beta_2_B": [Beta_2_B],
                                     "Beta_3_B": [Beta_3_B], "W_A_x": [W_A[0]], "W_A_y": [W_A[1]],
                                     "Z_A_x": [Z_A[0]], "Z_A_y": [Z_A[1]], "W_B_x": [W_B[0]],
                                     "W_B_y": [W_B[1]], "Z_B_x": [Z_B[0]], "Z_B_y": [Z_B[1]],
                                     "mag_W_A": [mag_W_A], "mag_Z_A": [mag_Z_A], "mag_W_B": [mag_W_B],
-                                    "mag_Z_B": [mag_Z_B], "A Trans pos 2": [trans_A_2],
-                                    "B Trans pos 2": [trans_B_2], "A Trans pos 3": [trans_A_3],
-                                    "B Trans pos 3": [trans_B_3]})
+                                    "mag_Z_B": [mag_Z_B], "A_trans_ang_2": [trans_A_2],
+                                    "B_trans_ang_2": [trans_B_2], "A_trans_ang_3": [trans_A_3],
+                                    "B_trans_ang_3": [trans_B_3]})
             log = pd.concat([log, temp_df], ignore_index=True)
 
             # *** FITNESS ***
@@ -164,15 +168,16 @@ def run(pop, gen):
     algorithm = NSGA2(pop_size=pop)
     # Edit termination and seed parameters
     res = minimize(problem, algorithm, termination=('n_gen', gen))
-    print("Best solution (Betas) found: %s" % res.X)
-    print("Transmission Angle values: %s" % res.F)
-    print("Constraints: %s" % res.G)
+    ## Uncomment below to see all solutions:
+    # print("Best solution (Betas) found: %s" % res.X)
+    # print("Transmission Angle values: %s" % res.F)
+    # print("Constraints: %s" % res.G)
 
     # Log only best final results
-    res_log = pd.DataFrame(columns=["A Transmission Angle", "B Transmission Angle", "Beta_2_A", "Beta_3_A",
-                            "Beta_2_B", "Beta_3_B", "W_A_x", "W_A_y", "Z_A_x", "Z_A_y", "W_B_x",
-                            "W_B_y", "Z_B_x", "Z_B_y", "mag_W_A", "mag_Z_A", "mag_W_B", "mag_Z_B",
-                            "A Trans pos 2", "B Trans pos 2", "A Trans pos 3", "B Trans pos 3"])
+    res_log = pd.DataFrame(columns=["A_trans_ang_1", "B_trans_ang_1", "Beta_2_A", "Beta_3_A",
+                                    "Beta_2_B", "Beta_3_B", "W_A_x", "W_A_y", "Z_A_x", "Z_A_y", "W_B_x",
+                                    "W_B_y", "Z_B_x", "Z_B_y", "mag_W_A", "mag_Z_A", "mag_W_B", "mag_Z_B",
+                                    "A_trans_ang_2", "B_trans_ang_2", "A_trans_ang_3", "B_trans_ang_3"])
     for i in range(0, len(res.pop.get(F""))):
         temp = log[log["mag_W_A"] == res.F[i][3]]
         temp = temp[temp["mag_Z_A"] == res.F[i][4]]
@@ -184,12 +189,14 @@ def run(pop, gen):
 
     ## *** BEST TRANSMISSION ANGLE *** ###
     # This tries to find the index of the best transmission angle in the results and then pull the data
+    # In this case, minimizing abs dev of transmission angle of side A, meaning the motor is on the right side
     best_ind_ang = 0
     abs_dev = 90
     for i in range(0, len(res.pop.get("F"))):
-        temp_abs_dev = 90 - min(res.F[i][0], res.F[i][1], res.F[i][2])
+        temp_abs_dev = max(res.F[i][0], res.F[i][1], res.F[i][2])
         if temp_abs_dev <= abs_dev:
             best_ind_ang = i
+            abs_dev = temp_abs_dev
     val_ang = res_log[res_log["mag_W_A"] == res.F[best_ind_ang][3]]
     val_ang = val_ang[val_ang["mag_Z_A"] == res.F[best_ind_ang][4]]
     val_ang = val_ang[val_ang["mag_W_B"] == res.F[best_ind_ang][5]]
@@ -197,13 +204,16 @@ def run(pop, gen):
     print(val_ang)
     if val_ang.empty:
         print("Broke.")
-        exit()
+        exit("Your result function is empty! Or something else is broken...")
     else:
+        print("Fig 2. index in log file is:", best_ind_ang)
         plt.figure(1)
+        plt.title("Minimizing Abs Dev Transmission Angle, side A (left)")
         graph_em(val_ang)
 
     ## *** SHORTEST LINK LENGTHS *** ###
-    # This tries to find the index of the shortest follower links in the results and then pull the data
+    # This tries to find the index of the shortest follower links (in this case: side A, red and yellow),
+    # in the results and then pull the data
     df_res = pd.DataFrame(np.array(res.F))
     best_ind_len = df_res.iloc[:, 1] - math.pi / 2
     best_ind_len = best_ind_len.idxmin()
@@ -214,9 +224,11 @@ def run(pop, gen):
     print(val_len)
     if val_len.empty:
         print("Broke.")
-        exit()
+        exit("Your result function is empty! Or something else is broken...")
     else:
+        print("Fig 2. index in log file is:", best_ind_len)
         plt.figure(2)
+        plt.title("Minimizing Follower Link Length, side A (left)")
         graph_em(val_len)
 
     return res
@@ -230,21 +242,33 @@ def graph_em(val):
         W_A_x, W_A_y, Z_A_x, Z_A_y, W_B_x, W_B_y, Z_B_x, Z_B_y, \
         mag_W_A, mag_Z_A, mag_W_B, mag_Z_B = val.iloc[0, 2:18]
 
-    # Print transmission angles in readable form (degrees)
-    trans_A_1 = val.iloc[0, 20] * 180 / math.pi
-    trans_B_1 = val.iloc[0, 21] * 180 / math.pi
-    trans_A_2 = val.iloc[0, 18] * 180 / math.pi
-    trans_B_2 = val.iloc[0, 19] * 180 / math.pi
-    trans_A_3 = val.iloc[0, 0] * 180 / math.pi
-    trans_B_3 = val.iloc[0, 1] * 180 / math.pi
+    # Gets transmission angles: will just pull if val is long enough to contain transmission angles.
+    # Else, it'll just calculate them.
+    trans_A_1 = val.iloc[0, 0] * 180 / math.pi
+    trans_B_1 = val.iloc[0, 1] * 180 / math.pi
+    if len(val.columns) > 18:
+        trans_A_2 = val.iloc[0, 18] * 180 / math.pi
+        trans_B_2 = val.iloc[0, 19] * 180 / math.pi
+        trans_A_3 = val.iloc[0, 20] * 180 / math.pi
+        trans_B_3 = val.iloc[0, 21] * 180 / math.pi
+    else:
+        trans_A_2 = trans_A_1 + (Alpha_2 - Beta_2_A) * 180 / math.pi
+        trans_B_2 = trans_B_1 + (Alpha_2 - Beta_2_B) * 180 / math.pi
+        trans_A_3 = trans_A_1 + (Alpha_3 - Beta_3_A) * 180 / math.pi
+        trans_B_3 = trans_B_1 + (Alpha_3 - Beta_3_B) * 180 / math.pi
+        trans_A_2 = abs(90 - trans_A_2)
+        trans_B_2 = abs(90 - trans_B_2)
+        trans_A_3 = abs(90 - trans_A_3)
+        trans_B_3 = abs(90 - trans_B_3)
     abs_dev_A = max([trans_A_1, trans_A_2, trans_A_3])
     abs_dev_B = max([trans_B_1, trans_B_2, trans_B_3])
-    print("Trans A pos 1:", trans_A_1 + 90)
-    print("Trans B pos 1:", trans_B_1 + 90)
-    print("Trans A pos 2:", trans_A_2 + 90)
-    print("Trans B pos 2:", trans_B_2 + 90)
-    print("Trans A pos 3:", trans_A_3 + 90)
-    print("Trans B pos 3:", trans_B_3 + 90)
+    # Print transmission angles in readable form (degrees)
+    print("Trans A pos 1:", trans_A_1)
+    print("Trans B pos 1:", trans_B_1)
+    print("Trans A pos 2:", trans_A_2)
+    print("Trans B pos 2:", trans_B_2)
+    print("Trans A pos 3:", trans_A_3)
+    print("Trans B pos 3:", trans_B_3)
     print("Abs deviation trans A:", abs_dev_A, "degrees")
     print("Abs deviation trans B:", abs_dev_B, "degrees")
 
@@ -337,5 +361,3 @@ def graph_em(val):
 # TLDR: number of evaluations = pop * gen
 run(pop=100, gen=20)
 plt.show()
-
-# graph_ex = pd.DataFrame()
