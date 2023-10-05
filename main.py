@@ -5,6 +5,7 @@ import cmath
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.optimize import minimize
 from pymoo.core.problem import Problem
+import matplotlib
 import matplotlib.pyplot as plt
 
 # Defining locations of buttons in x-y plane
@@ -321,33 +322,38 @@ def graph_em(val):
     fig = plt.gcf()
     fig.gca().set_aspect("equal")
     ax = fig.gca()
+    title = "Linkage Mechanism with " + "max B: " + str(np.round(abs_dev_B, 2)) + \
+            " max A: " + str(np.round(abs_dev_A, 2))
+    ax.set_title(title)
+    ax.set_xlabel("X Position")
+    ax.set_ylabel("Y Position")
 
     ## *** PLOT LINKS *** ##
     # General format: plotting order goes W_A (red), Z_A (orange), W_B (blue), Z_B (green)
     # Pos 1 (rightmost position)
-    plt.plot([A0[0], A1_1[0]], [A0[1], A1_1[1]], color="red")
-    plt.plot([-0.71, A1_1[0]], [0.71, A1_1[1]], color="orange")
-    plt.plot([B0[0], B1_1[0]], [B0[1], B1_1[1]], color="blue")
-    plt.plot([0.71, B1_1[0]], [-0.71, B1_1[1]], color="green")
-    plt.legend(['W_A', 'Z_A', 'W_B', 'Z_B'], loc='upper left')
+    ax.plot([A0[0], A1_1[0]], [A0[1], A1_1[1]], color="red")
+    ax.plot([-0.71, A1_1[0]], [0.71, A1_1[1]], color="orange")
+    ax.plot([B0[0], B1_1[0]], [B0[1], B1_1[1]], color="blue")
+    ax.plot([0.71, B1_1[0]], [-0.71, B1_1[1]], color="green")
+    ax.legend(['W_A', 'Z_A', 'W_B', 'Z_B'], loc='upper left')
     # Pos 2 (middle position)
-    plt.plot([A0[0], A1_2[0]], [A0[1], A1_2[1]], color="red", linestyle="dashed")
-    plt.plot([A1_2[0], A2_2[0]], [A1_2[1], A2_2[1]], color="orange", linestyle="dashed")
-    plt.plot([B0[0], B1_2[0]], [B0[1], B1_2[1]], color="blue", linestyle="dashed")
-    plt.plot([B1_2[0], B2_2[0]], [B1_2[1], B2_2[1]], color="green", linestyle="dashed")
+    ax.plot([A0[0], A1_2[0]], [A0[1], A1_2[1]], color="red", linestyle="dashed")
+    ax.plot([A1_2[0], A2_2[0]], [A1_2[1], A2_2[1]], color="orange", linestyle="dashed")
+    ax.plot([B0[0], B1_2[0]], [B0[1], B1_2[1]], color="blue", linestyle="dashed")
+    ax.plot([B1_2[0], B2_2[0]], [B1_2[1], B2_2[1]], color="green", linestyle="dashed")
     # Pos 3 (leftmost position)
-    plt.plot([A0[0], A1_3[0]], [A0[1], A1_3[1]], color="red", linestyle="dotted")
-    plt.plot([A1_3[0], A2_3[0]], [A1_3[1], A2_3[1]], color="orange", linestyle="dotted")
-    plt.plot([B0[0], B1_3[0]], [B0[1], B1_3[1]], color="blue", linestyle="dotted")
-    plt.plot([B1_3[0], B2_3[0]], [B1_3[1], B2_3[1]], color="green", linestyle="dotted")
+    ax.plot([A0[0], A1_3[0]], [A0[1], A1_3[1]], color="red", linestyle="dotted")
+    ax.plot([A1_3[0], A2_3[0]], [A1_3[1], A2_3[1]], color="orange", linestyle="dotted")
+    ax.plot([B0[0], B1_3[0]], [B0[1], B1_3[1]], color="blue", linestyle="dotted")
+    ax.plot([B1_3[0], B2_3[0]], [B1_3[1], B2_3[1]], color="green", linestyle="dotted")
 
     ## *** PLOT BOARD & HOLES *** ##
     # This scatter plots the ground positions
-    plt.scatter([A0[0], B0[0]], [A0[1], B0[1]], marker='*', color="black")
+    ax.scatter([A0[0], B0[0]], [A0[1], B0[1]], marker='*', color="black")
     # This plots the board bounds
-    plt.plot([7.21, 7.21, -16.8, -16.8, 7.21], [-11.71, 12.3, 12.3, -11.71, -11.71], color="black")
+    ax.plot([7.21, 7.21, -16.8, -16.8, 7.21], [-11.71, 12.3, 12.3, -11.71, -11.71], color="black")
     # This plots the section where attachment holes are
-    plt.plot([-6.3, -6.3, -12.3, -12.3, -6.3], [-10.21, -4.21, -4.21, -10.21, -10.2], color="black",
+    ax.plot([-6.3, -6.3, -12.3, -12.3, -6.3], [-10.21, -4.21, -4.21, -10.21, -10.2], color="black",
              linestyle="dashed")
     # These patches plot the button positions
     ax.add_patch(plt.Circle((-0.71, 0.71), 0.56, fill=False))
@@ -357,6 +363,7 @@ def graph_em(val):
     ax.add_patch(plt.Circle((-10.37, 1.28), 0.56, fill=False))
     ax.add_patch(plt.Circle((-12.30, 1.70), 0.56, fill=False))
     ax.add_patch(plt.Circle((-1.8, 6.3), 0.56, fill=False))
+
 
 
 # This is what runs & graphs everything. Population (pop) controls the number of solutions
