@@ -178,7 +178,7 @@ def run(pop, gen):
                                     "Beta_2_B", "Beta_3_B", "W_A_x", "W_A_y", "Z_A_x", "Z_A_y", "W_B_x",
                                     "W_B_y", "Z_B_x", "Z_B_y", "mag_W_A", "mag_Z_A", "mag_W_B", "mag_Z_B",
                                     "A_trans_ang_2", "B_trans_ang_2", "A_trans_ang_3", "B_trans_ang_3"])
-    for i in range(0, len(res.pop.get(F""))):
+    for i in range(0, len(res.F)):
         temp = log[log["mag_W_A"] == res.F[i][3]]
         temp = temp[temp["mag_Z_A"] == res.F[i][4]]
         temp = temp[temp["mag_W_B"] == res.F[i][5]]
@@ -197,16 +197,13 @@ def run(pop, gen):
         if temp_abs_dev <= abs_dev:
             best_ind_ang = i
             abs_dev = temp_abs_dev
-    val_ang = res_log[res_log["mag_W_A"] == res.F[best_ind_ang][3]]
-    val_ang = val_ang[val_ang["mag_Z_A"] == res.F[best_ind_ang][4]]
-    val_ang = val_ang[val_ang["mag_W_B"] == res.F[best_ind_ang][5]]
-    val_ang = val_ang[val_ang["mag_Z_B"] == res.F[best_ind_ang][6]].reset_index(drop=True)
+    val_ang = pd.DataFrame(res_log.loc[[best_ind_ang]])
     print(val_ang)
     if val_ang.empty:
         print("Broke.")
         exit("Your result function is empty! Or something else is broken...")
     else:
-        print("Fig 2. index in log file is:", best_ind_ang)
+        print("Fig 1. index in log file is:", best_ind_ang)
         plt.figure(1)
         plt.title("Minimizing Abs Dev Transmission Angle, side B (right)")
         graph_em(val_ang)
@@ -215,12 +212,8 @@ def run(pop, gen):
     # This tries to find the index of the shortest follower links (in this case: side A, red and yellow),
     # in the results and then pull the data
     df_res = pd.DataFrame(np.array(res.F))
-    best_ind_len = df_res.iloc[:, 5]
-    best_ind_len = best_ind_len.idxmin()
-    val_len = res_log[res_log["mag_W_A"] == res.F[best_ind_len][3]]
-    val_len = val_len[val_len["mag_Z_A"] == res.F[best_ind_len][4]]
-    val_len = val_len[val_len["mag_W_B"] == res.F[best_ind_len][5]]
-    val_len = val_len[val_len["mag_Z_B"] == res.F[best_ind_len][6]].reset_index(drop=True)
+    best_ind_len = df_res.iloc[:, 5].idxmin()
+    val_len = pd.DataFrame(res_log.loc[[best_ind_len]])
     print(val_len)
     if val_len.empty:
         print("Broke.")
