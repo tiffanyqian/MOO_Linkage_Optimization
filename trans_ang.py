@@ -142,9 +142,6 @@ class Linkage(Problem):
             f[i, :] = [abs_dev_A, abs_dev_B]
             # f[i, :] = [abs_dev_A, abs(mag_W_A), abs(mag_Z_A), abs(mag_W_B), abs(mag_Z_B)]
 
-            # plt.plot([7.21, 7.21, -16.8, -16.8, 7.21], [-11.71, 12.3, 12.3, -11.71, -11.71], color="black")
-            # This plots the section where attachment holes are
-            # plt.plot([-6.3, -6.3, -12.3, -12.3, -6.3], [-10.21, -4.21, -4.21, -10.21, -10.2], color="black",
             # *** CONSTRAINT HANDLING ***
             # Define joint positions. A1 and B1 are where the coupler joins with the input and follower link,
             # i.e. Z_A to W_A. A0 and B0 are the ground positions.
