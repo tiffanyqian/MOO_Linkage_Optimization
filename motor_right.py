@@ -12,10 +12,8 @@ import matplotlib.pyplot as plt
 ## PROBLEM DEFINITION IS HERE, CHANGE HERE TO OPTIMIZE A DIFF PROBLEM ##
 # Define (0,0) as shifted to the midpoint of the rightmost button set. See class notes for where the convention
 # comes from- pls do not ask me where the angles for the deltas came from they are sooo trial and error
-Delta_2_A = 6.62 * cmath.exp(complex(0, 96.88 * math.pi / 180))
-Delta_2_B = 7.17 * cmath.exp(complex(0, 80.86 * math.pi / 180))
-Delta_3_A = 11.63 * cmath.exp(complex(0, 142.4 * math.pi / 180))
-Delta_3_B = 11.25 * cmath.exp(complex(0, 137.14 * math.pi / 180))
+Delta_2 = complex(-5.83, 3.56)
+Delta_3 = complex(-11.33, 1.49)
 # Theta_1 = 0 deg, Theta_2 = 60.08 deg, Theta_3 = 32.72 deg, and then Alpha_j is diff between Theta_j and Theta_1
 Alpha_2 = 60.08 * math.pi / 180
 Alpha_3 = 32.72 * math.pi / 180
@@ -63,16 +61,16 @@ class Linkage(Problem):
             # Matrix math for left side (side A) and right side (side B) below. For convention, see MD class
             # notes.
             ## SIDE A ##
-            top_W_A = (Delta_2_A * cmath.exp(complex(0, Alpha_2))) * (cmath.exp(complex(0, Alpha_3)) - 1) - \
-                      (Delta_3_A * cmath.exp(complex(0, Alpha_3))) * (cmath.exp(complex(0, Alpha_2)) - 1)
+            top_W_A = (Delta_2) * (cmath.exp(complex(0, Alpha_3)) - 1) - \
+                      (Delta_3) * (cmath.exp(complex(0, Alpha_2)) - 1)
             bot_W_A = (cmath.exp(complex(0, Beta_2_A)) - 1) * (cmath.exp(complex(0, Alpha_3)) - 1) - \
                       (cmath.exp(complex(0, Beta_3_A)) - 1) * (cmath.exp(complex(0, Alpha_2)) - 1)
             im_W_A = top_W_A / bot_W_A
             W_A = [im_W_A.real, im_W_A.imag]
             mag_W_A = math.sqrt(W_A[0] ** 2 + W_A[1] ** 2)
             # print(W_A)
-            top_Z_A = (cmath.exp(complex(0, Beta_2_A)) - 1) * (Delta_3_A * cmath.exp(complex(0, Alpha_3))) - \
-                      (cmath.exp(complex(0, Beta_3_A)) - 1) * (Delta_2_A * cmath.exp(complex(0, Alpha_2)))
+            top_Z_A = (cmath.exp(complex(0, Beta_2_A)) - 1) * (Delta_3) - \
+                      (cmath.exp(complex(0, Beta_3_A)) - 1) * (Delta_2)
             bot_Z_A = (cmath.exp(complex(0, Beta_2_A)) - 1) * (cmath.exp(complex(0, Alpha_3)) - 1) - \
                       (cmath.exp(complex(0, Beta_3_A)) - 1) * (cmath.exp(complex(0, Alpha_2)) - 1)
             im_Z_A = top_Z_A / bot_Z_A
@@ -80,16 +78,16 @@ class Linkage(Problem):
             mag_Z_A = math.sqrt(Z_A[0] ** 2 + Z_A[1] ** 2)
             # print(Z_A)
             ## SIDE B ##
-            top_W_B = (Delta_2_B * cmath.exp(complex(0, Alpha_2))) * (cmath.exp(complex(0, Alpha_3)) - 1) - \
-                      (Delta_3_B * cmath.exp(complex(0, Alpha_3))) * (cmath.exp(complex(0, Alpha_2)) - 1)
+            top_W_B = (Delta_2) * (cmath.exp(complex(0, Alpha_3)) - 1) - \
+                      (Delta_3) * (cmath.exp(complex(0, Alpha_2)) - 1)
             bot_W_B = (cmath.exp(complex(0, Beta_2_B)) - 1) * (cmath.exp(complex(0, Alpha_3)) - 1) - \
                       (cmath.exp(complex(0, Beta_3_B)) - 1) * (cmath.exp(complex(0, Alpha_2)) - 1)
             im_W_B = top_W_B / bot_W_B
             W_B = [im_W_B.real, im_W_B.imag]
             mag_W_B = math.sqrt(W_B[0] ** 2 + W_B[1] ** 2)
             # print(W_B)
-            top_Z_B = (cmath.exp(complex(0, Beta_2_B)) - 1) * (Delta_3_B * cmath.exp(complex(0, Alpha_3))) - \
-                      (cmath.exp(complex(0, Beta_3_B)) - 1) * (Delta_2_B * cmath.exp(complex(0, Alpha_2)))
+            top_Z_B = (cmath.exp(complex(0, Beta_2_B)) - 1) * (Delta_3) - \
+                      (cmath.exp(complex(0, Beta_3_B)) - 1) * (Delta_2)
             bot_Z_B = (cmath.exp(complex(0, Beta_2_B)) - 1) * (cmath.exp(complex(0, Alpha_3)) - 1) - \
                       (cmath.exp(complex(0, Beta_3_B)) - 1) * (cmath.exp(complex(0, Alpha_2)) - 1)
             im_Z_B = top_Z_B / bot_Z_B
@@ -97,11 +95,36 @@ class Linkage(Problem):
             mag_Z_B = math.sqrt(Z_B[0] ** 2 + Z_B[1] ** 2)
             # print(Z_B)
 
+            # Define joint positions. A1 and B1 are where the coupler joins with the input and follower link,
+            # i.e. Z_A to W_A. A0 and B0 are the ground positions.
+            A1_1 = [-Z_A[0], -Z_A[1]]
+            A0 = [A1_1[0] - W_A[0], A1_1[1] - W_A[1]]
+            B1_1 = [-Z_B[0], -Z_B[1]]
+            B0 = [B1_1[0] - W_B[0], B1_1[1] - W_B[1]]
+            # Pos 2 (middle)
+            W_A_2 = cmath.exp(complex(0, Beta_2_A)) * complex(W_A[0], W_A[1])
+            W_A_2 = [W_A_2.real, W_A_2.imag]
+            A1_2 = [A0[0] + W_A_2[0], A0[1] + W_A_2[1]]
+            W_B_2 = cmath.exp(complex(0, Beta_2_B)) * complex(W_B[0], W_B[1])
+            W_B_2 = [W_B_2.real, W_B_2.imag]
+            B1_2 = [B0[0] + W_B_2[0], B0[1] + W_B_2[1]]
+            # Pos 3 (leftmost)
+            W_A_3 = cmath.exp(complex(0, Beta_3_A)) * complex(W_A[0], W_A[1])
+            W_A_3 = [W_A_3.real, W_A_3.imag]
+            A1_3 = [A0[0] + W_A_3[0], A0[1] + W_A_3[1]]
+            W_B_3 = cmath.exp(complex(0, Beta_3_B)) * complex(W_B[0], W_B[1])
+            W_B_3 = [W_B_3.real, W_B_3.imag]
+            B1_3 = [B0[0] + W_B_3[0], B0[1] + W_B_3[1]]
+            A1_2 = [B1_2[0] - A1_2[0], B1_2[1] - A1_2[1]]
+            A1_3 = [B1_3[0] - A1_3[0], B1_3[1] - A1_3[1]]
+            coup_bot_1 = [B1_1[0] - A1_1[0], B1_1[1] - A1_1[1]]
+            mag_coup_bot = math.sqrt(coup_bot_1[0] ** 2 + coup_bot_1[1] ** 2)
+
             # *** TRANSMISSION ANGLES ***
             # Use the cos(theta) = (a dot b) / (|a||b|) eq to calculate first transmission angle
-            trans_A_1 = np.arccos((W_A[0] * Z_A[0] + W_A[1] * Z_A[1]) / (mag_W_A * mag_Z_A))
-            trans_B_1 = np.arccos((W_B[0] * Z_B[0] + W_B[1] * Z_B[1]) / (mag_W_B * mag_Z_B))
-            # Every transmission angle past first position adds alpha and subtracts beta according to
+            trans_A_1 = np.arccos((W_A[0] * coup_bot_1[0] + W_A[1] * coup_bot_1[1]) / (mag_W_A * mag_coup_bot))
+            trans_B_1 = np.arccos((W_B[0] * coup_bot_1[0] + W_B[1] * coup_bot_1[1]) / (mag_W_B * mag_coup_bot))
+            # Every transmission angle past first position adds alpha and subtracts alpha according to
             # my lil mental math. pls tell me if I'm wrong
             trans_A_2 = trans_A_1 + Alpha_2 - Beta_2_A
             trans_B_2 = trans_B_1 + Alpha_2 - Beta_2_B
@@ -111,10 +134,10 @@ class Linkage(Problem):
             # Process transmission angle math
             t_angs = [trans_A_1, trans_B_1, trans_A_2, trans_B_2, trans_A_3, trans_B_3]
             for ang in range(len(t_angs)):
-                # This makes sure all angles are acute
+                # This makes sure all angles are "acute" (less than 180 deg)
                 t_angs[ang] = min(abs(t_angs[ang]), math.pi - abs(t_angs[ang]))
                 # This gets the deviation from 90 degrees
-                t_angs[ang] = math.pi / 2 - t_angs[ang]
+                t_angs[ang] = abs(math.pi / 2 - t_angs[ang])
             trans_A_1, trans_B_1, trans_A_2, trans_B_2, trans_A_3, trans_B_3 = t_angs
 
             # This calculates the absolute transmission angle deviation
@@ -144,9 +167,9 @@ class Linkage(Problem):
             # *** CONSTRAINT HANDLING ***
             # Define joint positions. A1 and B1 are where the coupler joins with the input and follower link,
             # i.e. Z_A to W_A. A0 and B0 are the ground positions.
-            A1_1 = [-0.71 - Z_A[0], 0.71 - Z_A[1]]
+            A1_1 = [-Z_A[0], -Z_A[1]]
             A0 = [A1_1[0] - W_A[0], A1_1[1] - W_A[1]]
-            B1_1 = [0.71 - Z_B[0], -0.71 - Z_B[1]]
+            B1_1 = [-Z_B[0], -Z_B[1]]
             B0 = [B1_1[0] - W_B[0], B1_1[1] - W_B[1]]
             # Trying to save space by not redefining extra variables, so ineq. constraints are as follows:
             g[i, :] = [-10 - A0[1], -10 - B0[1], A0[1] - 2, B0[1] - 2, -16.8 - A0[0], -16.8 - B0[0],
@@ -275,9 +298,9 @@ def graph_em(val):
     # position.
     # See Yevzo's notes for where this convention is from... it's messy so just ask me if you need more clarification.
     # Pos 1 (rightmost)
-    A1_1 = [-0.71 - Z_A_x, 0.71 - Z_A_y]
+    A1_1 = [-Z_A_x, -Z_A_y]
     A0 = [A1_1[0] - W_A_x, A1_1[1] - W_A_y]
-    B1_1 = [0.71 - Z_B_x, -0.71 - Z_B_y]
+    B1_1 = [-Z_B_x, - Z_B_y]
     B0 = [B1_1[0] - W_B_x, B1_1[1] - W_B_y]
     # Pos 2 (middle)
     W_A_2 = cmath.exp(complex(0, Beta_2_A)) * complex(W_A_x, W_A_y)

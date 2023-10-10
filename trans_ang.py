@@ -99,23 +99,34 @@ class Linkage(Problem):
             # print(Z_B)
 
             # *** TRANSMISSION ANGLES ***
+            # Define joint positions. A1 and B1 are where the coupler joins with the input and follower link,
+            # i.e. Z_A to W_A. A0 and B0 are the ground positions.
+            A1_1 = [-0.71 - Z_A[0], 0.71 - Z_A[1]]
+            A0 = [A1_1[0] - W_A[0], A1_1[1] - W_A[1]]
+            B1_1 = [0.71 - Z_B[0], -0.71 - Z_B[1]]
+            B0 = [B1_1[0] - W_B[0], B1_1[1] - W_B[1]]
+            bot_coup = [B1_1[0]-A1_1[0], B1_1[1]-A1_1[1]]
+            mag_bot_coup = math.sqrt(bot_coup[0]**2 + bot_coup[1]**2)
+            coup_A = np.arccos((bot_coup[0] * Z_A[0] + bot_coup[1] * Z_A[1]) / (mag_bot_coup * mag_Z_A))
+            coup_B = np.arccos((-bot_coup[0] * Z_B[0] - bot_coup[1] * Z_B[1]) / (mag_bot_coup * mag_Z_B))
+
             # Use the cos(theta) = (a dot b) / (|a||b|) eq to calculate first transmission angle
-            trans_A_1 = np.arccos((W_A[0] * Z_A[0] + W_A[1] * Z_A[1]) / (mag_W_A * mag_Z_A))
-            trans_B_1 = np.arccos((W_B[0] * Z_B[0] + W_B[1] * Z_B[1]) / (mag_W_B * mag_Z_B))
+            trans_A_1 = np.arccos((W_A[0] * Z_A[0] + W_A[1] * Z_A[1]) / (mag_W_A * mag_Z_A)) - coup_A
+            trans_B_1 = np.arccos((W_B[0] * Z_B[0] + W_B[1] * Z_B[1]) / (mag_W_B * mag_Z_B)) - coup_Bh
             # Every transmission angle past first position adds alpha and subtracts beta according to
             # my lil mental math. pls tell me if I'm wrong
-            trans_A_2 = trans_A_1 + Alpha_2 - Beta_2_A
-            trans_B_2 = trans_B_1 + Alpha_2 - Beta_2_B
-            trans_A_3 = trans_A_1 + Alpha_3 - Beta_3_A
-            trans_B_3 = trans_B_1 + Alpha_3 - Beta_3_B
+            trans_A_2 = trans_A_1 + Alpha_2
+            trans_B_2 = trans_B_1 - Alpha_2
+            trans_A_3 = trans_A_1 + Alpha_3
+            trans_B_3 = trans_B_1 - Alpha_3
 
             # Process transmission angle math
             t_angs = [trans_A_1, trans_B_1, trans_A_2, trans_B_2, trans_A_3, trans_B_3]
             for ang in range(len(t_angs)):
-                # This makes sure all angles are acute
-                t_angs[ang] = min(abs(t_angs[ang]), math.pi - abs(t_angs[ang]))
+                # # This makes sure all angles are acute
+                # t_angs[ang] = min(abs(t_angs[ang]), math.pi - abs(t_angs[ang]))
                 # This gets the deviation from 90 degrees
-                t_angs[ang] = math.pi / 2 - t_angs[ang]
+                t_angs[ang] = abs(math.pi / 2 - t_angs[ang])
             trans_A_1, trans_B_1, trans_A_2, trans_B_2, trans_A_3, trans_B_3 = t_angs
 
             # This calculates the absolute transmission angle deviation
@@ -143,18 +154,12 @@ class Linkage(Problem):
             # f[i, :] = [abs_dev_A, abs(mag_W_A), abs(mag_Z_A), abs(mag_W_B), abs(mag_Z_B)]
 
             # *** CONSTRAINT HANDLING ***
-            # Define joint positions. A1 and B1 are where the coupler joins with the input and follower link,
-            # i.e. Z_A to W_A. A0 and B0 are the ground positions.
-            A1_1 = [-0.71 - Z_A[0], 0.71 - Z_A[1]]
-            A0 = [A1_1[0] - W_A[0], A1_1[1] - W_A[1]]
-            B1_1 = [0.71 - Z_B[0], -0.71 - Z_B[1]]
-            B0 = [B1_1[0] - W_B[0], B1_1[1] - W_B[1]]
             # Trying to save space by not redefining extra variables, so ineq. constraints are as follows:
-            g[i, :] = [-11.71 - A0[1], -11.71 - B0[1], A0[1] - 12.3, B0[1] - 12.3, -16.8 - A0[0], -16.8 - B0[0],
+            g[i, :] = [-11.71 - A0[1], -11.71 - B0[1], A0[1], B0[1], -16.8 - A0[0], -16.8 - B0[0],
                        A0[0] - 7.21, B0[0] - 7.21, mag_W_A - 10, mag_Z_A - 10, mag_W_B - 10, mag_Z_B - 10,
                        A0[0] - B0[0]]
             # -11.71 - A0[1], -11.71 - B0[1] -> y-coord of ground links A0 and B0 must be above y = -11.71
-            # A0[1] - 12.3, B0[1] - 12.3 -> y-coord of ground links A0 and B0 must be below y = 12.3
+            # A0[1], B0[1] -> y-coord of ground links A0 and B0 must be below y = 0
             # -16.8 - A0[0], -16.8 - B0[0] -> x-coord of ground links A0 and B0 must be to the right of x = -16.8
             # A0[0] - 7.21, B0[0] - 7.21 ->  x-coord of ground links A0 and B0 must be to the left of x = 7.21
             # mag_W_A - 10, mag_Z_A - 10, mag_W_B - 10, mag_Z_B - 10 -> link lengths must be less than 10 inches
@@ -313,17 +318,20 @@ def graph_em(val):
     plt.plot([-0.71, A1_1[0]], [0.71, A1_1[1]], color="orange")
     plt.plot([B0[0], B1_1[0]], [B0[1], B1_1[1]], color="blue")
     plt.plot([0.71, B1_1[0]], [-0.71, B1_1[1]], color="green")
-    plt.legend(['W_A', 'Z_A', 'W_B', 'Z_B'], loc='upper left')
+    plt.plot([A1_1[0], B1_1[0]], [A1_1[1], B1_1[1]], color="black")
+    plt.legend(['W_A', 'Z_A', 'W_B', 'Z_B', "Coupler Bottom"], loc='upper left')
     # Pos 2 (middle position)
     plt.plot([A0[0], A1_2[0]], [A0[1], A1_2[1]], color="red", linestyle="dashed")
     plt.plot([A1_2[0], A2_2[0]], [A1_2[1], A2_2[1]], color="orange", linestyle="dashed")
     plt.plot([B0[0], B1_2[0]], [B0[1], B1_2[1]], color="blue", linestyle="dashed")
     plt.plot([B1_2[0], B2_2[0]], [B1_2[1], B2_2[1]], color="green", linestyle="dashed")
+    plt.plot([A1_2[0], B1_2[0]], [A1_2[1], B1_2[1]], color="black")
     # Pos 3 (leftmost position)
     plt.plot([A0[0], A1_3[0]], [A0[1], A1_3[1]], color="red", linestyle="dotted")
     plt.plot([A1_3[0], A2_3[0]], [A1_3[1], A2_3[1]], color="orange", linestyle="dotted")
     plt.plot([B0[0], B1_3[0]], [B0[1], B1_3[1]], color="blue", linestyle="dotted")
     plt.plot([B1_3[0], B2_3[0]], [B1_3[1], B2_3[1]], color="green", linestyle="dotted")
+    plt.plot([A1_3[0], B1_3[0]], [A1_3[1], B1_3[1]], color="black")
 
     ## *** PLOT BOARD & HOLES *** ##
     # This scatter plots the ground positions
