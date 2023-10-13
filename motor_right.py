@@ -379,5 +379,5 @@ def graph_em(val):
 # before termination (gen) controls how many generations or sets of the population is run
 # before the algorithm stops.
 # TLDR: number of evaluations = pop * gen
-run(pop=100, gen=20)
+run(pop=1000, gen=50)
 plt.show()
