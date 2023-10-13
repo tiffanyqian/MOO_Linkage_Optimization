@@ -135,7 +135,7 @@ class Linkage(Problem):
             t_angs = [trans_A_1, trans_B_1, trans_A_2, trans_B_2, trans_A_3, trans_B_3]
             for ang in range(len(t_angs)):
                 # This makes sure all angles are "acute" (less than 180 deg)
-                t_angs[ang] = min(abs(t_angs[ang]), math.pi - abs(t_angs[ang]))
+                t_angs[ang] = min(abs(t_angs[ang]), abs(math.pi - abs(t_angs[ang])))
                 # This gets the deviation from 90 degrees
                 t_angs[ang] = abs(math.pi / 2 - t_angs[ang])
             trans_A_1, trans_B_1, trans_A_2, trans_B_2, trans_A_3, trans_B_3 = t_angs
@@ -338,9 +338,9 @@ def graph_em(val):
     # General format: plotting order goes W_A (red), Z_A (orange), W_B (blue), Z_B (green)
     # Pos 1 (rightmost position)
     plt.plot([A0[0], A1_1[0]], [A0[1], A1_1[1]], color="red")
-    plt.plot([-0.71, A1_1[0]], [0.71, A1_1[1]], color="orange")
+    plt.plot([0, A1_1[0]], [0, A1_1[1]], color="orange")
     plt.plot([B0[0], B1_1[0]], [B0[1], B1_1[1]], color="blue")
-    plt.plot([0.71, B1_1[0]], [-0.71, B1_1[1]], color="green")
+    plt.plot([0, B1_1[0]], [0, B1_1[1]], color="green")
     plt.plot([A1_1[0], B1_1[0]], [A1_1[1], B1_1[1]], color="black")
     plt.legend(['W_A', 'Z_A', 'W_B', 'Z_B', "Coupler Bottom"], loc='upper left')
     # Pos 2 (middle position)
@@ -379,5 +379,5 @@ def graph_em(val):
 # before termination (gen) controls how many generations or sets of the population is run
 # before the algorithm stops.
 # TLDR: number of evaluations = pop * gen
-run(pop=1000, gen=50)
+run(pop=500, gen=25)
 plt.show()
