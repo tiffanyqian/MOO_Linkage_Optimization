@@ -341,17 +341,20 @@ def graph_em(val):
     plt.plot([-0.71, A1_1[0]], [0.71, A1_1[1]], color="orange")
     plt.plot([B0[0], B1_1[0]], [B0[1], B1_1[1]], color="blue")
     plt.plot([0.71, B1_1[0]], [-0.71, B1_1[1]], color="green")
-    plt.legend(['W_A', 'Z_A', 'W_B', 'Z_B'], loc='upper left')
+    plt.plot([A1_1[0], B1_1[0]], [A1_1[1], B1_1[1]], color="black")
+    plt.legend(['W_A', 'Z_A', 'W_B', 'Z_B', "Coupler Bottom"], loc='upper left')
     # Pos 2 (middle position)
     plt.plot([A0[0], A1_2[0]], [A0[1], A1_2[1]], color="red", linestyle="dashed")
     plt.plot([A1_2[0], A2_2[0]], [A1_2[1], A2_2[1]], color="orange", linestyle="dashed")
     plt.plot([B0[0], B1_2[0]], [B0[1], B1_2[1]], color="blue", linestyle="dashed")
     plt.plot([B1_2[0], B2_2[0]], [B1_2[1], B2_2[1]], color="green", linestyle="dashed")
+    plt.plot([A1_2[0], B1_2[0]], [A1_2[1], B1_2[1]], color="black")
     # Pos 3 (leftmost position)
     plt.plot([A0[0], A1_3[0]], [A0[1], A1_3[1]], color="red", linestyle="dotted")
     plt.plot([A1_3[0], A2_3[0]], [A1_3[1], A2_3[1]], color="orange", linestyle="dotted")
     plt.plot([B0[0], B1_3[0]], [B0[1], B1_3[1]], color="blue", linestyle="dotted")
     plt.plot([B1_3[0], B2_3[0]], [B1_3[1], B2_3[1]], color="green", linestyle="dotted")
+    plt.plot([A1_3[0], B1_3[0]], [A1_3[1], B1_3[1]], color="black")
 
     ## *** PLOT BOARD & HOLES *** ##
     # This scatter plots the ground positions
